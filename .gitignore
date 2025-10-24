@@ -1,0 +1,9 @@
+# Environment and secrets
+.env
+.venv
+# Local data and caches
+data/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+
