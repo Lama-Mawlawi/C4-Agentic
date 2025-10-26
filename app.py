@@ -1,23 +1,3 @@
-"""
-LangGraph ReAct Agent for OrbitCoach — auto‑ingests `about_business.pdf` + `summary.txt`
---------------------------------------------------------------------------------------
-This single file:
-  • Loads your business summary and PDF on startup (no hardcoding).
-  • Builds a ReAct loop in LangGraph with two personas.
-  • Adds a `kb_search` tool that retrieves snippets from your PDF/TXT so answers stay on‑brand.
-  • Includes a tiny experiment harness.
-
-Run:
-  pip install langgraph langchain-openai pydantic rich python-dotenv pypdf
-  export OPENAI_API_KEY=sk-...
-  python app.py --persona friendly
-  # or
-  python app.py --run-experiment
-
-Place files next to this script:
-  ./summary.txt
-  ./about_business.pdf
-"""
 from __future__ import annotations
 import argparse
 import json
