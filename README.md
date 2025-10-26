@@ -1,53 +1,75 @@
-﻿
-OrbitCoach ReAct Agent (LangGraph + OpenAI)
+# OrbitCoach ReAct Agent – C4 Assignment
 
-Overview
-- Single‑file demo agent in `app.py` that follows a ReAct loop (Reason → Act → Observe → Finalize) using LangGraph and `langchain-openai`.
-- Loads your local business context from `summary.txt` and `about_business.pdf` to ground answers.
-- Includes lightweight tools: `kb_search`, `price_estimate`, `schedule_lookup`.
-- Optional ReAct tracing to see Thought, Action, Observation before the final answer.
+## 📘 Overview
+This project implements a **ReAct (Reasoning + Acting)** agent for **OrbitCoach Tutors**,  
+a personalized tutoring platform that blends human expertise with AI.  
+The agent is built using **LangGraph**, integrating multiple tools and distinct personas  
+to simulate reasoning, tool usage, and adaptive tone.
 
-Prerequisites
-- Python 3.10+ (tested with 3.10/3.11/3.12/3.13)
-- OpenAI API key
+The system automatically loads company data from:
+- `about_business.pdf` – detailed company profile  
+- `summary.txt` – executive summary  
 
-Setup
-1) Install dependencies
-   - `pip install -r requirements.txt`
-2) Create `.env` in the project root (already present) with:
-   - `OPENAI_API_KEY=sk-...`
-   - Optional: `OPENAI_MODEL=gpt-4o-mini`
-3) Place your business files next to `app.py`:
-   - `summary.txt`
-   - `about_business.pdf`
+This ensures answers are grounded in real OrbitCoach information.
 
-Run
-- Interactive mode:
-  - `python app.py --persona friendly`
-  - Personas: `friendly` or `strict` (e.g., `--persona strict`)
+---
 
-See ReAct Steps (Streaming)
-- To print Thought → Action → Observation before the final answer:
-  - `python app.py --persona friendly --stream-react`
-  - Or set env var then run: `STREAM_REACT=1 python app.py --persona friendly`
+## 🧠 Core Features
 
-What You’ll See (with --stream-react)
-- A “ReAct Trace” section printed before the final Assistant message:
-  - Thought/Model: raw model output from the reasoning step
-  - Action + Action Input: the parsed tool call
-  - Observation: tool result fed back to the model
+| Feature | Description |
+|----------|-------------|
+| **Framework** | Built with [LangGraph](https://github.com/langchain-ai/langgraph) for explicit ReAct control. |
+| **ReAct Logic** | Manual reasoning–action–observation loop implemented with states and conditional edges. |
+| **Personas** | Two modes: `friendly` (warm, motivational) and `strict` (concise, precise). |
+| **Tools** | `kb_search`, `price_estimate`, and `schedule_lookup` for retrieval, pricing, and scheduling. |
+| **Document Grounding** | The `kb_search` tool retrieves snippets from company documents (PDF/TXT). |
+| **Experiments** | CLI harness for temperature, persona, and prompt-style testing. |
 
-How It Works (Quick Tour)
-- System prompt: describes your tools and the ReAct format.
-- Reason node: calls the model; if output contains `Action:` it continues, otherwise it finalizes.
-- Act node: parses `Action` and executes the matching Python tool; posts an Observation back into the message list.
-- Graph: loops Reason → Act until final answer or turn limit.
+---
 
-Files
-- `app.py` — main agent and CLI.
-- `.env` — holds `OPENAI_API_KEY` (loaded automatically).
-- `summary.txt`, `about_business.pdf` — local context for grounding.
-- `requirements.txt` — Python dependencies.
+## ⚙️ How It Works
+1. **Reasoning Step:** The model “thinks” about what it needs to answer.  
+2. **Action Step:** If a tool is required, it emits  
+3. **Observation Step:** The tool executes, returns results, and feeds them back to the model.  
+4. **Answer Step:** The model finalizes its grounded answer.
 
-Notes
-- ReAct trace and streaming logs are for visibility only; they don’t change final answers.
+This flow repeats until the agent marks itself `done = True`.
+
+---
+
+## 🧩 Tools
+
+| Tool | Purpose |
+|------|----------|
+| `kb_search(query)` | Retrieves relevant chunks from company PDF/TXT for factual grounding. |
+| `price_estimate(hours, modality)` | Calculates cost estimates for tutoring sessions. |
+| `schedule_lookup(subject, when)` | Finds next available session slots. |
+
+---
+
+## 🧪 How to Run
+
+### 1️⃣ Setup
+```bash
+git clone https://github.com/Lama-Mawlawi/C4-Agentic
+cd C4-Agentic
+python -m venv .venv
+source .venv/bin/activate   # or .venv\Scripts\activate on Windows
+pip install -U pip
+pip install langgraph langchain-openai pydantic rich python-dotenv pypdf
+
+## Run the Agent
+python app.py --persona friendly
+python app.py --persona strict
+
+##Trace React 
+python app.py --persona strict --stream-react
+
+ ## Example ReAct Trace
+[ReAct] reason: calling LLM…
+Thought: I need to check the tutoring services.
+Action: kb_search
+Action Input: {"query":"top services"}
+Observation: OrbitCoach Tutors blends human expertise with AI to deliver fast, effective tutoring...
+Answer: OrbitCoach offers 1-to-1 tutoring, micro-sessions, personalized practice, and progress tracking.
+
